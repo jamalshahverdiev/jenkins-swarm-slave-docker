@@ -13,6 +13,11 @@ To run a Docker container passing [any parameters](https://wiki.jenkins-ci.org/d
 
     docker run csanchez/jenkins-swarm-slave -master http://jenkins:8080 -username jenkins -password jenkins -executors 1
 
+Run container with name and disable clients unique id:
+```bash
+$ docker container run --name dockerslave -d jswarm -master http://jenkins:8080 -username admin -password tokenID -mode normal -name dockerslave -disableClientsUniqueId -executors 3
+```
+
 Linking to the Jenkins master container there is no need to use `--master`
 
     docker run -d --name jenkins -p 8080:8080 csanchez/jenkins-swarm
