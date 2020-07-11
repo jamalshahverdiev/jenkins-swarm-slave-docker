@@ -28,4 +28,4 @@ Linking to the Jenkins master container there is no need to use `--master`
 
     docker build -t csanchez/jenkins-swarm-slave .
 
-# I have prepared `docker-compose.yml` to start 3 swarm agent i 3 docker container which we can call via `starter.sh` script. `Dockerfile` and `jenkins-slave.sh` moved to the `jswarmslave` folder.
+#### I have prepared `docker-compose.yml` to start 3 swarm agent i 3 docker container which we can call via `starter.sh` script. `Dockerfile` and `jenkins-slave.sh` moved to the `jswarmslave` folder.
