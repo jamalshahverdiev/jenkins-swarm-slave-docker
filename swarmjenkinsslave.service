@@ -1,0 +1,21 @@
+[Unit]
+Description=Jenkins SWARM agent of Slave
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+User=jenkins
+Group=jenkins
+PIDFile=/var/run/jenkins/jenkins.pid
+PermissionsStartOnly=true
+ExecStartPre=-/bin/mkdir -p /var/run/jenkins /var/log/jenkins
+ExecStartPre=/bin/chown -R jenkins:jenkins /var/run/jenkins /var/log/jenkins
+ExecStart=/bin/bash -c "java -jar /opt/jenkins/swarm-client-3.9.jar -master http://10.1.42.120:8080 -username admin -password Zumrud123 -mode normal -name halb -disableClientsUniqueId -executors 4 2>&1 >> /var/log/jenkins/jenkins-slave.log & echo $! > /var/run/jenkins/jenkins.pid"
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+KillSignal=SIGTERM
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
