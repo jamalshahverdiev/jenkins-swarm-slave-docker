@@ -24,3 +24,5 @@ $ docker container run -v /var/run/docker.sock:/var/run/docker.sock:ro --name=do
 #### I have prepared `docker-compose.yml` to start 2 swarm agent in docker container which we can be executed via `starter.sh` script. `Dockerfile` and `jenkins-slave.sh` moved to the `jswarmslave` folder.
 
 #### `jenkinswarmslaves.service` system unit file which we must add to the `/etc/systemd/system/` folder and then execute `systemctl daemon-reload && systemctl enable jenkinswarmslaves --now` command. System unit file calls `/root/jenkins-swarm-slave-docker/starter.sh` script and for that reason we must create right folder `/root/jenkins-swarm-slave-docker` to put all source code files `/root/jenkins-swarm-slave-docker`. Otherwise we must change path in the `/etc/systemd/system/jenkinswarmslaves.service` file.
+
+#### Note: If you use `starter.sh` script with System unit file `jenkinswarmslaves.service`, please don't forget change right values of the `jenkinsURL`, `jenkinsUser` and `jenkinsUserAPIToken` variables.
