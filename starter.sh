@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-jenkinsURL="http://10.1.42.120:8080"
-jenkinsUser="admin"
-jenkinsUserAPIToken="11d3fcf8525e42044a204d77db2d0769f7"
+jenkinsURL="http://jenkins_IP:Port"
+jenkinsUser="jenkins_admin_username"
+jenkinsUserAPIToken="API_TOKEN_OF_ADMIN_ACCOUNT"
 executorCount=5
 
 #### Note: If you want add new slave docker node then, edit 'serviceName' variable with right name and uncomment the following lines. Don't forget add new service name to the for iteration.
@@ -17,7 +17,7 @@ executorCount=5
 #    hostname: $serviceName
 #EOF
 
-for svcName in jswarmslave1 jswarmslave2 
+for svcName in jswarmslave1 jswarmslave2
 do
     docker-compose run -d $svcName -master $jenkinsURL -username $jenkinsUser -password $jenkinsUserAPIToken -mode "normal" -name "$svcName" -disableClientsUniqueId -executors $executorCount
 done
