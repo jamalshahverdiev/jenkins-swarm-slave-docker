@@ -1,31 +1,26 @@
 # Jenkins swarm slave
 
-[`csanchez/jenkins-swarm-slave`](https://registry.hub.docker.com/u/csanchez/jenkins-swarm-slave/)
-
 A [Jenkins swarm](https://wiki.jenkins-ci.org/display/JENKINS/Swarm+Plugin) slave.
 
-For a container with ssh enabled see
-[`csanchez/jenkins-slave`](https://registry.hub.docker.com/u/csanchez/jenkins-slave/)
-
-## Running
-
-To run a Docker container passing [any parameters](https://wiki.jenkins-ci.org/display/JENKINS/Swarm+Plugin#SwarmPlugin-AvailableOptions) to the slave
-
-    docker run csanchez/jenkins-swarm-slave -master http://jenkins:8080 -username jenkins -password jenkins -executors 1
-
-Run container with name and disable clients unique id:
+## Take docker gid from host machine and Update `Dockerfile` file to use that
+## To use Docker in Docker, in the slave node execute variable `dockerGidFromHost` and replace needed GID for docker service in the `Dockerfile`
 ```bash
-$ docker container run --name dockerslave -d jswarm -master http://jenkins:8080 -username admin -password tokenID -mode normal -name dockerslave -disableClientsUniqueId -executors 3
+$ dockerGidFromHost=$(cat /etc/group | grep docker | awk -F':' '{ print $(NF-1)}')
+$ sed -i "s/change_docker_gid_from_host/$dockerGidFromHost/g" jswarmslave/Dockerfile
 ```
 
-Linking to the Jenkins master container there is no need to use `--master`
+## Go to inside of the `jswarmslave` folder to build new image with name `jsswarmimage`:
+```bash
+$ docker build -t jsswarmimage .
+```
 
-    docker run -d --name jenkins -p 8080:8080 csanchez/jenkins-swarm
-    docker run -d --link jenkins:jenkins csanchez/jenkins-swarm-slave -username jenkins -password jenkins -executors 1
+## Or just execute `starter.sh` script to prepare images and start them.
 
+## Create new container. The following command will create new container with name `dockerslave1` which will use same name to join to the Jenkins server as slave node. Container used `jsswarmimage` image which we have created before. From `-master`, `-username`, `-password` fields we can understand it is Jenkins URL, username, API token for the Jenkins master server. `-executors` paralel job executor count.
+```bash
+$ docker container run -v /var/run/docker.sock:/var/run/docker.sock:ro --name=dockerslave1 -d jsswarmimage -master http://10.0.80.83:8080 -username sahverdiyevcr -password API_TOKEN_OF_ADMIN_ACCOUNT -mode normal -name dockerslave1 -disableClientsUniqueId -executors 4
+```
 
-# Building
+#### I have prepared `docker-compose.yml` to start 2 swarm agent in docker container which we can be executed via `starter.sh` script. `Dockerfile` and `jenkins-slave.sh` moved to the `jswarmslave` folder.
 
-    docker build -t csanchez/jenkins-swarm-slave .
-
-#### I have prepared `docker-compose.yml` to start 3 swarm agent i 3 docker container which we can call via `starter.sh` script. `Dockerfile` and `jenkins-slave.sh` moved to the `jswarmslave` folder.
+## `jenkinswarmslaves.service` system unit file which we must add to the `/etc/systemd/system/` folder and then execute `systemctl daemon-reload && systemctl enable jenkinswarmslaves --now` command. System unit file calls `/root/jenkins-swarm-slave-docker/starter.sh` script and for that reason we must create right folder `/root/jenkins-swarm-slave-docker` to put all source code files `/root/jenkins-swarm-slave-docker`. Otherwise we must change path in the `/etc/systemd/system/jenkinswarmslaves.service` file.
